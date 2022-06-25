@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réseaux Projet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+</head>
+
+<body>
+    <div class="container-fluid boderborder-primary d-flex align-items-center justify-content-center"
+        style="height: 100vh;">
+        <div class="border border-primary h-75 col-md-5 py-4">
+            <h2 class="text-center mb-4">Configurer votre Topologie</h2>
+            <div class="px-5">
+                <div class="mb-3">
+                    <label class="form-label">Selectionner le routeur</label>
+                    <select class="form-select" id="router--select">
+                        <option selected hidden>Sélectionner le routeur</option>
+                        <option>A</option>
+                        <option>B</option>
+                    </select>
+                </div>
+                <form class="d-none" data-router="A">
+                    <div class="mb-3">
+                        <label class="form-label">Nom du routeur B</label>
+                        <input name="hostname" type="text" class="form-control" placeholder="Hostname">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nom de l'interface</label>
+                        <select class="form-select ">
+                            <option selected hidden>Sélectionner l'interface</option>
+                            <option value="1">G0/0</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Addresse IP de l'interface</label>
+                        <input name="ipAdrr" type="text" class="form-control" placeholder="IP Address">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Addresse route déstination</label>
+                        <input name="ipRoute" type="text" class="form-control" placeholder="IP Route">
+                    </div>
+                </form>
+                <form class="d-none" data-router="B">
+                    <div class="mb-3">
+                        <label class="form-label">Nom du routeur B</label>
+                        <input name="hostname" type="text" class="form-control" placeholder="Hostname">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nom de l'interface</label>
+                        <select class="form-select ">
+                            <option selected hidden>Sélectionner l'interface</option>
+                            <option value="1">G0/0</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Addresse IP de l'interface</label>
+                        <input name="ipAdrr" type="text" class="form-control" placeholder="IP Address">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Addresse route déstination</label>
+                        <input name="ipRoute" type="text" class="form-control" placeholder="IP Route">
+                    </div>
+                </form>
+                <button type="submit" class="btn btn-xl btn-primary w-100" id="submit--button">Soumettre</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+<script>
+    const formA = [];
+    const formB = [];
+
+    const routerSelect = document.querySelector("#router--select");
+    const submitBtn = document.querySelector("#submit--button");
+    const uploadData = {
+        router_number: "",
+        hostname: "",
+        interface:"G0/0",
+        ipAdrr: "",
+        ipRoute:""
+    }
+    // Handle Selects
+    routerSelect.addEventListener("click", (e) =>{
+        const selectedRouter = routerSelect.options[routerSelect.selectedIndex].text;
+        if (selectedRouter == "B") {
+            document.querySelector(`[data-router="A"]`).classList.add("d-none");
+            document.querySelector(`[data-router="B"]`).classList.remove("d-none");
+        }
+        else {
+            document.querySelector(`[data-router="B"]`).classList.add("d-none");
+            document.querySelector(`[data-router="A"]`).classList.remove("d-none");
+        }
+    })
+
+    // // Handle Request Sending
+    async function sendJSON(url, uploadData) {
+    try {
+        const resp = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-type": "application/json",
+            },
+            body: JSON.stringify(uploadData)
+        });
+        const data = await resp.json();
+        if (!resp.ok) console("The request failed");
+        return data;
+    } catch (err) {
+        throw(err);
+    }}
+
+    //Handle Submit
+    document.querySelector("#submit--button").addEventListener("click", (e) => {
+        const selectedRouter = routerSelect.options[routerSelect.selectedIndex].text;
+        if (selectedRouter == "B") {
+            document.querySelector(`[data-router="A"]`).classList.add("d-none");
+            document.querySelector(`[data-router="B"]`).classList.remove("d-none");
+            const formB = Array.from(document.querySelector("form[data-router='B']").elements);
+            formB.forEach(input => {
+                if (!input.name) return
+                uploadData[`${input.name}`] = input.value;
+                input.value = ""
+            })
+            uploadData.router_number = "B";
+            console.log(uploadData);
+            sendJSON("qsdfqsdf", uploadData)
+
+        }
+        else {
+            document.querySelector(`[data-router="B"]`).classList.add("d-none");
+            document.querySelector(`[data-router="A"]`).classList.remove("d-none");
+            const formA = Array.from(document.querySelector("form[data-router='A']").elements);
+            formA.forEach(input => {
+                if (!input.name) return
+                uploadData[`${input.name}`] = input.value;
+                input.value = ""
+            })
+            uploadData.router_number = "A"
+            console.log(uploadData);
+            sendJSON("qsdfqsdf", uploadData)
+
+        }
+    })
+
+</script>
+
+</html>
